@@ -67,7 +67,8 @@ def find_relevant_segments(
     cosine_similarities = cosine_similarity(tfidf_matrix[-1], tfidf_matrix[:-1])
 
     # I've removed everything that is less than a certain similarity search, so we're not giving the model
-    # context of unnecessary information. I've defaulted to .1 here after playing around with it a little.
+    # context of unnecessary information. I've defaulted to .1 here after playing around with it a little,
+    # to make sure we get paragraphs that still have a little information about the topic
     filtered_indices = [
         i
         for i, similarity in enumerate(cosine_similarities[0])

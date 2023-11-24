@@ -3,9 +3,6 @@ import urllib.parse as urlparse
 
 
 def extract_video_id(url):
-    """
-    Extracts the video ID ffrom a YouTube URL.
-    """
     url_data = urlparse.urlparse(url)
     query = urlparse.parse_qs(url_data.query)
     video_id = query["v"][0]
