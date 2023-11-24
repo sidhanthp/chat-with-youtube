@@ -1,5 +1,4 @@
 import streamlit as st
-from dotenv import load_dotenv
 
 from youtube import get_transcript, extract_video_id
 from search_video import (
@@ -9,10 +8,6 @@ from search_video import (
 )
 
 from llm import create_chat_completion
-
-
-load_dotenv()
-
 
 st.title("YouTube Q&A Chatbot")
 url = st.text_input("Enter the YouTube URL:")
