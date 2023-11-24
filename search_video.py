@@ -23,7 +23,6 @@ def find_relevant_segments(
     Retrieves the top_n most relevant segments from the transcript for the question along with their timestamps,
     ensuring that each segment is less than max_tokens.
     """
-    # Get the tokenizer for the specific model
     enc = tiktoken.encoding_for_model("gpt-4")
 
     new_transcript_with_timestamps = []
@@ -61,14 +60,14 @@ def find_relevant_segments(
             (" ".join(current_segment), current_segment_start_time)
         )
 
-    # Now proceed with the rest of the original function
     segments, timestamps = zip(*new_transcript_with_timestamps)
     segments = list(segments)
     vectorizer = TfidfVectorizer()
     tfidf_matrix = vectorizer.fit_transform(segments + [question])
     cosine_similarities = cosine_similarity(tfidf_matrix[-1], tfidf_matrix[:-1])
 
-    # Filter out segments with a similarity below the threshold
+    # I've removed everything that is less than a certain similarity search, so we're not giving the model
+    # context of unnecessary information. I've defaulted to .1 here after playing around with it a little.
     filtered_indices = [
         i
         for i, similarity in enumerate(cosine_similarities[0])
@@ -87,7 +86,6 @@ def find_answer_in_transcript(question, transcript):
     # Retrieve the most relevant segments from the transcript
     relevant_transcript = find_relevant_segments(question, transcript)
 
-    # Combine the relevant transcript and the question into a single string
     prompt = f"I am going to give you a transcript of a video. Below that, I am will include a question for that video. Respond directly to the question. Refer to the transcript below as video, not as text. If the queation isn't answered by the transcript, let me know that the question is not answered in the video.\n\n {relevant_transcript}\n\nQuestion: {question}"
     chat_completion = create_chat_completion(prompt)
 
