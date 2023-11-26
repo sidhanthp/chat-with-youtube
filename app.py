@@ -37,7 +37,8 @@ if question:
         question, transcript_with_timestamps
     )
 
-    st.write("### Data Sources (Beta)")
+    st.write("### Data Sources (beta)")
+    
     for segment, timestamp in relevant_segments_with_timestamps:
         # Summarize the segment in the context of the question
         summary = summarize_segment(question, segment)
