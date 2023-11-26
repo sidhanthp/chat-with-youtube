@@ -91,7 +91,7 @@ def find_answer_in_transcript(question, transcript, video_metadata):
     else:
         video_metadata_string = ""
 
-    prompt = f"I am going to give you a transcript of a video. {video_metadata_string} Below that, I am will include a question for that video. Respond directly to the question. Refer to the transcript below as video, not as text. If the queation isn't answered by the transcript, let me know that the question is not answered in the video.\n\n {transcript}\n\nQuestion: {question}"
+    prompt = f"I am going to give you a transcript of a video. {video_metadata_string} Below that, I will include a question for that video. Respond directly to the question. Refer to the transcript below as a video, not as text. If the queation isn't answered by the transcript, let me know that the question is not answered in the video.\n\n {transcript}\n\nQuestion: {question}"
 
     answer = create_chat_completion(prompt)
     return answer

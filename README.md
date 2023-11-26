@@ -8,5 +8,3 @@ I know this solution is imperfect. If I were to invest some more effort, here ar
 
 TODO: 
 1. Clean up the code
-2. Save transcript in an accessible format? Probably need to connect a DB and store the transcript / summary.
-3. Reduce latency?
