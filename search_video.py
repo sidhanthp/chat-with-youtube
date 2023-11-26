@@ -5,7 +5,7 @@ from llm import create_chat_completion
 import tiktoken
 import os
 from dotenv import load_dotenv
-from youtube import get_transcript, get_video_metadata, extract_video_id
+from youtube import get_transcript
 import streamlit as st
 
 load_dotenv()
@@ -87,7 +87,7 @@ def find_relevant_segments(
 
 def find_answer_in_transcript(question, transcript, video_metadata):
     if video_metadata is not None:
-        video_metadata_string = f"This video is titled '{video_metadata['title']}' with description: {video_metadata['description']}."
+        video_metadata_string = f"This video is titled '{video_metadata['title']}' with description: {video_metadata['description']}. It was created by {video_metadata['author']} and published on {video_metadata['publish_date']}"
     else:
         video_metadata_string = ""
 
