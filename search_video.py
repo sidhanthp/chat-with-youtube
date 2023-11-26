@@ -5,6 +5,8 @@ from llm import create_chat_completion
 import tiktoken
 import os
 from dotenv import load_dotenv
+from youtube import get_transcript, get_video_metadata, extract_video_id
+import streamlit as st
 
 load_dotenv()
 
@@ -83,14 +85,15 @@ def find_relevant_segments(
     return [(segments[i], timestamps[i]) for i in top_indices]
 
 
-def find_answer_in_transcript(question, transcript):
-    # Retrieve the most relevant segments from the transcript
-    relevant_transcript = find_relevant_segments(question, transcript)
+def find_answer_in_transcript(question, transcript, video_metadata):
+    if video_metadata is not None:
+        video_metadata_string = f"This video is titled '{video_metadata['title']}' with description: {video_metadata['description']}."
+    else:
+        video_metadata_string = ""
 
-    prompt = f"I am going to give you a transcript of a video. Below that, I am will include a question for that video. Respond directly to the question. Refer to the transcript below as video, not as text. If the queation isn't answered by the transcript, let me know that the question is not answered in the video.\n\n {relevant_transcript}\n\nQuestion: {question}"
-    chat_completion = create_chat_completion(prompt)
+    prompt = f"I am going to give you a transcript of a video. {video_metadata_string} Below that, I am will include a question for that video. Respond directly to the question. Refer to the transcript below as video, not as text. If the queation isn't answered by the transcript, let me know that the question is not answered in the video.\n\n {transcript}\n\nQuestion: {question}"
 
-    answer = chat_completion.choices[0].message.content.strip()
+    answer = create_chat_completion(prompt)
     return answer
 
 
@@ -99,7 +102,30 @@ def summarize_segment(question, segment):
     Uses OpenAI's GPT-4 to summarize the segment of the transcript relevant to the question.
     """
     summary_prompt = f"Summarize the following segment in the context of the question asked.\n\nSegment: {segment}\n\nQuestion: {question}"
-    summary_completion = create_chat_completion(summary_prompt)
 
-    summary = summary_completion.choices[0].message.content.strip()
+    summary = create_chat_completion(summary_prompt)
+    return summary
+
+
+def generate_summary(video_id):
+    # Initialize the 'summary' key in session state if it doesn't exist
+    if "summary" not in st.session_state:
+        st.session_state.summary = {}
+
+    # Check if the summary is already in the session state
+    if video_id in st.session_state.summary:
+        return st.session_state.summary[video_id]
+
+    # If not, generate the summary
+    transcript_with_timestamps = get_transcript(video_id)
+    if transcript_with_timestamps is None:
+        st.error("Unable to retrieve transcript.")
+        return None
+
+    summary_prompt = f"Please summarize the following video. Here is the transcript: {transcript_with_timestamps}"
+    summary = create_chat_completion(summary_prompt)
+
+    # Store the summary in the session state
+    st.session_state.summary[video_id] = summary
+
     return summary

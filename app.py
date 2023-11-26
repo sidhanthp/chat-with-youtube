@@ -1,13 +1,12 @@
 import streamlit as st
 
-from youtube import get_transcript, extract_video_id
+from youtube import get_transcript, extract_video_id, get_video_metadata
 from search_video import (
     find_answer_in_transcript,
     find_relevant_segments,
     summarize_segment,
+    generate_summary,
 )
-
-from llm import create_chat_completion
 
 st.title("YouTube Q&A Chatbot")
 url = st.text_input("Enter the YouTube URL:")
@@ -15,24 +14,24 @@ url = st.text_input("Enter the YouTube URL:")
 # Video Summary
 if url:
     video_id = extract_video_id(url)
-    transcript_with_timestamps = get_transcript(video_id)
     st.video(f"https://www.youtube.com/watch?v={video_id}")
 
-    summary_prompt = f"Please summarize the following video. Here is the transcript: {transcript_with_timestamps}"
-    summary_completion = create_chat_completion(summary_prompt)
+    video_metadata = get_video_metadata(url)
+    transcript_with_timestamps = get_transcript(video_id)
+    video_summary = generate_summary(video_id)
 
-    video_summary = summary_completion.choices[0].message.content.strip()
-
-    st.subheader("Video Summary")
+    st.write("## Video Summary")
     st.write(video_summary)
 
+    question = st.text_input("## Ask your question:", key=url)
 
-question = st.text_input("Ask your question:")
 
 # Question Answer
 if question:
-    answer = find_answer_in_transcript(question, transcript_with_timestamps)
-    st.write(answer)  # Display the answer
+    answer = find_answer_in_transcript(
+        question, transcript_with_timestamps, video_metadata
+    )
+    st.write(answer)
 
 
 # Source of Data to Answer Question
@@ -41,7 +40,7 @@ if question:
         question, transcript_with_timestamps
     )
 
-    st.write("Data used to Answer Question")
+    st.write("### Data used to Answer Question (Beta)")
     for segment, timestamp in relevant_segments_with_timestamps:
         # Summarize the segment in the context of the question
         summary = summarize_segment(question, segment)
@@ -53,5 +52,4 @@ if question:
         st.markdown(
             f"[Jump to {formatted_timestamp}](https://www.youtube.com/watch?v={video_id}&t={formatted_timestamp})"
         )
-        # Display the summary instead of the full segment
         st.write(summary)
