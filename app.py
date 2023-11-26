@@ -10,6 +10,7 @@ from search_video import (
 
 st.title("YouTube Q&A Chatbot")
 url = st.text_input("Enter the YouTube URL:")
+question = None
 
 # Video Summary
 if url:
@@ -26,21 +27,17 @@ if url:
     question = st.text_input("## Ask your question:", key=url)
 
 
-# Question Answer
 if question:
     answer = find_answer_in_transcript(
         question, transcript_with_timestamps, video_metadata
     )
     st.write(answer)
 
-
-# Source of Data to Answer Question
-if question:
     relevant_segments_with_timestamps = find_relevant_segments(
         question, transcript_with_timestamps
     )
 
-    st.write("### Data used to Answer Question (Beta)")
+    st.write("### Data Sources (Beta)")
     for segment, timestamp in relevant_segments_with_timestamps:
         # Summarize the segment in the context of the question
         summary = summarize_segment(question, segment)
