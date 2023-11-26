@@ -19,18 +19,12 @@ def get_video_metadata(url):
     try:
         yt = YouTube(url)
 
-        # This is absolutely insane that the `description` is broken, but this GH issue had the answer: https://github.com/pytube/pytube/issues/1626
+        # This is absolutely insane that the `description` is broken
+        # This GH issue had a fix: https://github.com/pytube/pytube/issues/1626, but it randomly threw an exception
+        # So I stuck with the broken description...
         video_metadata = {
             "title": yt.title,
-            "description": yt.initial_data["engagementPanels"][1][
-                "engagementPanelSectionListRenderer"
-            ]["content"]["structuredDescriptionContentRenderer"]["items"][1][
-                "expandableVideoDescriptionBodyRenderer"
-            ][
-                "attributedDescriptionBodyText"
-            ][
-                "content"
-            ],
+            "description": yt.description,
             "author": yt.author,
             "publish_date": yt.publish_date,
         }
